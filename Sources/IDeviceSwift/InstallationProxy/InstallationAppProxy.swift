@@ -30,9 +30,7 @@ public class InstallationAppProxy: NSObject {
 					throw IDeviceSwiftError(message: "Missing Pairing")
 				}
 			} else {
-				guard self._heartbeat.ensureRSDTunnel() else {
-					throw IDeviceSwiftError(message: "Missing Pairing")
-				}
+				try self._heartbeat.ensureRSDTunnel()
 			}
 			
 			if self._heartbeat.isRsd {

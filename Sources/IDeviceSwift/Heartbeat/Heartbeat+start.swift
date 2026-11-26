@@ -144,34 +144,25 @@ extension HeartbeatManager {
 
 	// MARK: - RSD Tunnel
 
-	internal func ensureRSDTunnel() -> Bool {
-		guard !isRestartInProgress else {
-			return true
-		}
-		
-		isRestartInProgress = true
+	/// Connects the RemoteXPC tunnel to this device (iOS 17.4 and later) through 10.7.0.1 with
+	/// the RPPairing file, again for each use. It used to leave `isRestartInProgress` set when it
+	/// failed, and then answer every later call as connected with no adapter: a failure throws
+	/// why now, and calls wait for each other on the lock instead.
+	internal func ensureRSDTunnel() throws {
 		restartLock.lock()
 		defer { restartLock.unlock() }
 		
-		guard let pairingFile = getPairingRsd() else {
-			Logger.heartbeat.error("RSD pairing file not found")
-			return false
-		}
+		let pairingFile = try getPairingRsd()
+		defer { rp_pairing_file_free(pairingFile) }
 		
 		var addr = sockaddr_in()
 		memset(&addr, 0, MemoryLayout.size(ofValue: addr))
 		addr.sin_family = sa_family_t(AF_INET)
 		addr.sin_port = CFSwapInt16HostToBig(port_rsd)
-		
-		guard inet_pton(AF_INET, ipAddress, &addr.sin_addr) == 1 else {
-			Logger.heartbeat.error("Invalid IP address")
-			return false
-		}
+		inet_pton(AF_INET, ipAddress, &addr.sin_addr)
 		
 		var newAdapter: AdapterHandle?
 		var newHandshake: RsdHandshakeHandle?
-		
-		print("h")
 		
 		let result = withUnsafePointer(to: &addr) {
 			$0.withMemoryRebound(to: idevice_sockaddr.self, capacity: 1) { ptr in
@@ -188,10 +179,8 @@ extension HeartbeatManager {
 			}
 		}
 				
-		if let err = result {
-			let error = IDeviceSwiftError(err)
-			Logger.heartbeat.error("\(error): \(err.pointee.code)")
-			return false
+		if let result {
+			throw IDeviceSwiftError(result, context: "Cannot connect to the device's RemoteXPC tunnel at \(ipAddress):\(port_rsd)")
 		}
 				
 		if let oldHandshake = handshake {
@@ -203,12 +192,6 @@ extension HeartbeatManager {
 		
 		adapter = newAdapter
 		handshake = newHandshake
-		
-		rp_pairing_file_free(pairingFile)
-		
-		isRestartInProgress = false
-		
-		return true
 	}
 
 	// MARK: - Start Heartbeat

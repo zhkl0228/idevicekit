@@ -36,9 +36,7 @@ public class InstallationProxy: Identifiable, ObservableObject {
 			}
 			
 			if await self._heartbeat.isRsd {
-				guard await self._heartbeat.ensureRSDTunnel() else {
-					throw IDeviceSwiftError(message: "Missing Pairing")
-				}
+				try await self._heartbeat.ensureRSDTunnel()
 			} else {
 				guard await self._heartbeat.checkSocketConnection().isConnected else {
 					throw IDeviceSwiftError(message: "Missing Pairing")

@@ -28,6 +28,13 @@ struct IDeviceSwiftError: Error {
 		self._code = error?.pointee.code ?? 0
 	}
 	
+	/// The error, with what was being done when it happened in front of its message.
+	init(_ error: UnsafeMutablePointer<IdeviceFfiError>?, context: String) {
+		let underlying = IDeviceSwiftError(error)
+		self._message = "\(context): \(underlying._message)"
+		self._code = underlying._code
+	}
+	
 	init(
 		_ code: Int32 = -7001, // our custom error hehe
 		message: String
