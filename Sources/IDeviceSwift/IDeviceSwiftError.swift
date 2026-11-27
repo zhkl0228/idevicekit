@@ -12,6 +12,8 @@ struct IDeviceSwiftError: Error {
 	private let _message: String
 	private let _code: Int32
 	
+	var message: String { _message }
+	
 	init(_ error: IdeviceFfiError?) {
 		self._message = error?.message.flatMap {
 			String(cString: $0)

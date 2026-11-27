@@ -31,13 +31,12 @@ public class InstallationProxy: Identifiable, ObservableObject {
 		var installproxy: InstallationProxyClientHandle?
 		
 		try await Task.detached(priority: .utility) {
-			guard FileManager.default.fileExists(atPath: HeartbeatManager.pairingFile()) else {
-				throw IDeviceSwiftError(message: "Missing Pairing")
-			}
-			
 			if await self._heartbeat.isRsd {
 				try await self._heartbeat.ensureRSDTunnel()
 			} else {
+				guard FileManager.default.fileExists(atPath: HeartbeatManager.pairingFile()) else {
+					throw IDeviceSwiftError(message: "Missing Pairing")
+				}
 				guard await self._heartbeat.checkSocketConnection().isConnected else {
 					throw IDeviceSwiftError(message: "Missing Pairing")
 				}

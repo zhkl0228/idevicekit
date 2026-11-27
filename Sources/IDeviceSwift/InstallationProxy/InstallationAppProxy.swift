@@ -21,11 +21,10 @@ public class InstallationAppProxy: NSObject {
 		var installproxy: InstallationProxyClientHandle?
 		
 		let allApps = try await Task.detached(priority: .userInitiated) { () -> [AppInfo] in
-			guard FileManager.default.fileExists(atPath: HeartbeatManager.pairingFile()) else {
-				throw IDeviceSwiftError(message: "Missing Pairing")
-			}
-			
 			if !self._heartbeat.isRsd {
+				guard FileManager.default.fileExists(atPath: HeartbeatManager.pairingFile()) else {
+					throw IDeviceSwiftError(message: "Missing Pairing")
+				}
 				guard self._heartbeat.checkSocketConnection().isConnected else {
 					throw IDeviceSwiftError(message: "Missing Pairing")
 				}

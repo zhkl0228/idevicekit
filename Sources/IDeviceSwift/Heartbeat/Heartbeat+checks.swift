@@ -94,12 +94,12 @@ extension HeartbeatManager {
 		return pairingFile
 	}
 	
-	/// The pairing file as an RPPairing file (iOS 17.4 and later), as `rp_pairing_file_read`
-	/// reads it: a lockdown pairing record is not one, and the error says why it was refused.
+	/// The RPPairing file (iOS 17.4 and later) at `rpPairingFile()`, as `rp_pairing_file_read`
+	/// reads it; the error says why it was refused, or that there is none.
 	func getPairingRsd() throws -> RpPairingFileHandle {
 		var pairingFile: RpPairingFileHandle?
-		if let error = rp_pairing_file_read(Self.pairingFile(), &pairingFile) {
-			throw IDeviceSwiftError(error, context: "Cannot read \(Self.pairingFile()) as an RPPairing file")
+		if let error = rp_pairing_file_read(Self.rpPairingFile(), &pairingFile) {
+			throw IDeviceSwiftError(error, context: "Cannot read \(Self.rpPairingFile()) as an RPPairing file (import one in Settings)")
 		}
 		return pairingFile!
 	}

@@ -32,11 +32,10 @@ public class SystemLogManager: NSObject {
 	public weak var delegate: SystemLogManagerDelegate?
 
 	private func _connect() async throws {
-		guard FileManager.default.fileExists(atPath: HeartbeatManager.pairingFile()) else {
-			throw IDeviceSwiftError(message: "Missing Pairing")
-		}
-		
 		if !self._heartbeat.isRsd {
+			guard FileManager.default.fileExists(atPath: HeartbeatManager.pairingFile()) else {
+				throw IDeviceSwiftError(message: "Missing Pairing")
+			}
 			guard self._heartbeat.checkSocketConnection().isConnected else {
 				throw IDeviceSwiftError(message: "Missing Pairing")
 			}
