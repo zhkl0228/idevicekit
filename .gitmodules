@@ -1,0 +1,4 @@
+[submodule "idevice"]
+	path = idevice
+	url = https://github.com/zhkl0228/idevice
+	branch = feather-tcp

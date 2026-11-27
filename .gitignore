@@ -91,3 +91,6 @@ iOSInjectionProject/
 
 
 .DS_Store
+
+# Built from the idevice submodule by build-xcframework.sh
+/IDevice.xcframework/
