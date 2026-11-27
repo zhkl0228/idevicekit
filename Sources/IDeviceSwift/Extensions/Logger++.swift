@@ -10,4 +10,5 @@ import struct OSLog.Logger
 
 extension Logger {
 	static let heartbeat = Logger(subsystem: Bundle.main.bundleIdentifier!, category: "Heartbeat")
+	static let installer = Logger(subsystem: Bundle.main.bundleIdentifier!, category: "Installer")
 }
