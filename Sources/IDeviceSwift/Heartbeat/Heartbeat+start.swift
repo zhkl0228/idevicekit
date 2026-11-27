@@ -148,7 +148,7 @@ extension HeartbeatManager {
 	/// the RPPairing file, again for each use. It used to leave `isRestartInProgress` set when it
 	/// failed, and then answer every later call as connected with no adapter: a failure throws
 	/// why now, and calls wait for each other on the lock instead.
-	internal func ensureRSDTunnel() throws {
+	public func ensureRSDTunnel() throws {
 		restartLock.lock()
 		defer { restartLock.unlock() }
 		

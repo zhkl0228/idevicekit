@@ -39,14 +39,18 @@ public class InstallationProxy: Identifiable, ObservableObject {
 	/// bundle's files uploaded as they are and upgraded with PackageType Developer. iOS replaces
 	/// a running app for a Developer install; for an .ipa, a Customer install, it waits until
 	/// it may terminate the app, which one running in the background can put off for good.
-	public func install(at url: URL, suspend: Bool = false) async throws {
+	/// `rsdTunnelReady`: the caller connected the RemoteXPC tunnel (`ensureRSDTunnel`) just
+	/// before, while it did something else, so it is not connected again.
+	public func install(at url: URL, suspend: Bool = false, rsdTunnelReady: Bool = false) async throws {
 		var afcClient: AfcClientHandle?
 		var fileHandle: AfcFileHandle?
 		var installproxy: InstallationProxyClientHandle?
 		
 		try await Task.detached(priority: .utility) {
 			if await self._heartbeat.isRsd {
-				try await self._heartbeat.ensureRSDTunnel()
+				if !rsdTunnelReady {
+					try await self._heartbeat.ensureRSDTunnel()
+				}
 			} else {
 				guard FileManager.default.fileExists(atPath: HeartbeatManager.pairingFile()) else {
 					throw IDeviceSwiftError(message: "Missing Pairing")
